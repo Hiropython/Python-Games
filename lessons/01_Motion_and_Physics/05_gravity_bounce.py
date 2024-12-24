@@ -19,7 +19,7 @@ class Settings:
     red: tuple = (255, 0, 0)
     player_size: int = 20
     gravity: int = 1
-    jump_y_velocity: int = 30
+    jump_y_velocity: int = 20
     jump_x_velocity: int = 10
 
 # Initialize Pygame
@@ -52,7 +52,8 @@ while running:
             running = False
 
     # Continuously jump. If the player is not jumping, make it jump
-    if is_jumping is False:
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_SPACE]:
         # Jumping means that the player is going up. The top of the 
         # screen is y=0, and the bottom is y=settings.screen_height. So, to go up,
         # we need to have a negative y velocity
@@ -70,6 +71,7 @@ while running:
 
         player_y_velocity += settings.gravity
         player.y += player_y_velocity
+    if keys [pygame.K_a]:
         player.x += player_x_velocity
         
     # If the player hits one side of the screen or the other, bounce the player
