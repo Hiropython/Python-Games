@@ -76,28 +76,29 @@ while running:
                 is_jumping = True
    
 
-if player.y < 0 or player.y > screen_height:
-    player.v.y = -player.v.y
-    # Update player position. Gravity is always pulling the player down,
-    # which is the positive y direction, so we add GRAVITY to the y velocity
-    # to make the player go up more slowly. Eventually, the player will have
-    # a positive y velocity, and gravity will pull the player down.
+    if player.y > 0 or player.y < GameSettings.screen_width:
+        #player.v.y = -player.v.y
+        
+        # Update player position. Gravity is always pulling the player down,
+        # which is the positive y direction, so we add GRAVITY to the y velocity
+        # to make the player go up more slowly. Eventually, the player will have
+        # a positive y velocity, and gravity will pull the player down.
+        
+        player_y_velocity += settings.gravity
+        player.y += player_y_velocity
+        
+        # If the player hits the ground, stop the player from falling.
+        # The player's position is measured from the top left corner, so the
+        # bottom of the player is player.y + PLAYER_SIZE. If the bottom of the
+        # player is greater than the height of the screen, the player is on the
+        # ground. So, set the player's y position to the bottom of the screen
+        # and stop the player from falling
+        
+        if player.bottom >= settings.screen_height:
+            player.bottom = settings.screen_height 
+            player_y_velocity = 0  
+            is_jumping = False
     
-    player_y_velocity += settings.gravity
-    player.y += player_y_velocity
-    
-    # If the player hits the ground, stop the player from falling.
-    # The player's position is measured from the top left corner, so the
-    # bottom of the player is player.y + PLAYER_SIZE. If the bottom of the
-    # player is greater than the height of the screen, the player is on the
-    # ground. So, set the player's y position to the bottom of the screen
-    # and stop the player from falling
-    
-    if player.bottom >= settings.screen_height:
-        player.bottom = settings.screen_height 
-        player_y_velocity = 0  
-        is_jumping = False
-   
 
     # Draw everything
     screen.fill(settings.white)
