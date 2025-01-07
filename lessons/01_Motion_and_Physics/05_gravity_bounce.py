@@ -18,9 +18,9 @@ class Settings:
     black: tuple = (0, 0, 0)
     red: tuple = (255, 0, 0)
     player_size: int = 20
-    gravity: int = 1
-    jump_y_velocity: int = 40
-    jump_x_velocity: int = 20
+    gravity: float = 1.1
+    jump_y_velocity: int = 15
+    jump_x_velocity: int = 7
 
 # Initialize Pygame
 pygame.init()
@@ -57,43 +57,59 @@ while running:
         # Jumping means that the player is going up. The top of the 
         # screen is y=0, and the bottom is y=settings.screen_height. So, to go up,
         # we need to have a negative y velocity
+        
         if player_y_velocity==0:
             player_y_velocity = -settings.jump_y_velocity
             player_x_velocity = settings.jump_x_velocity * x_direction
         else:
             pass
         is_jumping = True
-    elif keys[pygame.K_a]:
+    if keys[pygame.K_a]:
+        #if player_y_velocity==0:
+            #player_y_velocity=-settings.jump_y_velocity
+            #player_x_velocity=settings.jump_x_velocity * -1
+        
         if player_y_velocity==0:
-            player_y_velocity=-settings.jump_y_velocity
-            player_x_velocity=settings.jump_x_velocity * -1
+            player_y_velocity = -settings.jump_y_velocity
+            player_x_velocity = settings.jump_x_velocity * x_direction
+            x_direction=-1
+            print(player_y_velocity,player_x_velocity)
         else:
             pass
-    elif keys[pygame.K_d]:
+    if keys[pygame.K_d]:
         if player_y_velocity==0:
             player_y_velocity=-settings.jump_y_velocity
             player_x_velocity=settings.jump_x_velocity * 1
+            x_direction=1
+            print(player_y_velocity,player_x_velocity)
         else:
             pass
-    else: # the player is jumping
+     # the player is jumping
         # Update player position. Gravity is always pulling the player down,
         # which is the positive y direction, so we add settings.gravity to the y velocity
         # to make the player go up more slowly. Eventually, the player will have
         # a positive y velocity, and gravity will pull the player down.
 
-        player_y_velocity += settings.gravity
-        player.y += player_y_velocity 
-        player.x += player_x_velocity
-        if player_y_velocity<0.1:
-            player_y_velocity=0
-        else:
-            player_y_velocity=player_y_velocity-0.01
+    player_y_velocity += settings.gravity
+    player.y += player_y_velocity 
+    player.x += player_x_velocity
         
-        if player_x_velocity<0.1:
-            player_x_velocity=0
-        else:
+    if player_y_velocity<0.1:
+        pass
+    #    player_y_velocity=0
+    else:
+        player_y_velocity=player_y_velocity-0.001
+        
+    if player_x_velocity<0.1 and x_direction==1:
+        player_x_velocity=0
+    elif player_x_velocity>-0.1 and x_direction==-1:
+        player_x_velocity=0
+    else:
+        if x_direction==1:
             player_x_velocity=player_x_velocity-0.01
-    
+        else:
+            player_x_velocity=player_x_velocity+0.01
+        
     # If the player hits one side of the screen or the other, bounce the player
     if player.left <= 0 or player.right >= settings.screen_width:
         player_x_velocity = -player_x_velocity
@@ -101,7 +117,8 @@ while running:
         # One way to change direction. 
         x_direction = -x_direction 
         # But this way is more reliable, since it will always be 1 or -1 and dir is tied to velocity
-        x_direction = player_x_velocity // abs(player_x_velocity)
+        #x_direction = player_x_velocity // abs(player_x_velocity)
+        
 
     # If the player hits the top of the screen, bounce the player
     if player.top <= 0:
@@ -115,6 +132,13 @@ while running:
         player_x_velocity = 0
         
         is_jumping = False
+    if player.left <= 0 and player_y_velocity==0:
+        player_x_velocity=settings.jump_x_velocity
+
+    if player.right >= settings.screen_width and player_y_velocity==0:
+        player_x_velocity=-settings.jump_x_velocity
+
+
 
 
 
