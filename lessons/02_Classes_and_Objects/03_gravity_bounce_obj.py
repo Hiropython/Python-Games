@@ -15,7 +15,8 @@ class Colors:
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     RED = (255, 0, 0)
-
+    BLUE=(0,0,255)
+    GREEN=(0,255,0)
 
 class GameSettings:
     """Settings for the game"""
@@ -45,6 +46,7 @@ class Game:
         self.screen = pygame.display.set_mode((self.settings.width, self.settings.height))
         self.clock = pygame.time.Clock()
 
+
         self.players = []
 
     def add_player(self, player):
@@ -66,15 +68,15 @@ class Game:
                 player.draw(self.screen)
                 
             pygame.display.flip()
-            self.clock.tick(60)
-
+            self.clock.tick(40)
+            
         pygame.quit()
 
 
 class Player:
     """Player class, just a bouncing rectangle"""
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game,x,y,xv,yv,color):
         self.game = game
         settings = game.settings
 
@@ -83,13 +85,13 @@ class Player:
       
         self.is_jumping = False
         self.v_jump = settings.player_jump_velocity
-
-        self.y = settings.player_start_y if settings.player_start_y is not None else settings.height - self.height
-        self.x = settings.player_start_x
         
-        self.v_x = settings.player_v_x  # X Velocity
-        self.v_y = settings.player_v_y  # Y Velocity
-
+        self.y = y
+        self.x = x
+        
+        self.v_x = xv
+        self.v_y = yv
+        self.color=color
     def update(self):
         """Update player position, continuously jumping"""
         self.update_jump()
@@ -125,14 +127,19 @@ class Player:
             self.is_jumping = True
 
     def draw(self, screen):
-        pygame.draw.rect(screen, Colors.BLACK, (self.x, self.y, self.width, self.height))
+        pygame.draw.rect(screen,self.color, (self.x, self.y, self.width, self.height))
 
 
 settings = GameSettings()
 game = Game(settings)
 
-p1 = Player(game)
+p1 = Player(game, 10, 100, 7,1, Colors.RED)
 game.add_player(p1)
-
+p2= Player(game, 5, 60, 9,2, Colors.BLACK)
+game.add_player(p2)
+p3= Player(game, 7, 90, 15,3, Colors.BLUE)
+game.add_player(p3)
+p4= Player(game, 5, 60, 11,4, Colors.GREEN)
+game.add_player(p4)
 
 game.run()
