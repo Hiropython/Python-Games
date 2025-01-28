@@ -11,6 +11,7 @@ import pygame
 from dataclasses import dataclass
 
 
+
 class Colors:
     """Constants for Colors"""
     WHITE = (255, 255, 255)
@@ -138,10 +139,11 @@ class Player:
     
     def update(self):
         """Update player position, continuously jumping"""
-        self.update_jump()
-        self.update_v()
-        self.update_pos()
-        
+        if pygame.key.get_pressed[pygame.K_d]():
+            self.update_jump()
+            self.update_v()
+            self.update_pos()
+            self.vel+= -self.vel*0.01    
     def update_v(self):
         """Update the player's velocity based on gravity and bounce on edges"""
          

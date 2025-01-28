@@ -17,7 +17,8 @@ class Colors:
     RED = (255, 0, 0)
     BLUE=(0,0,255)
     GREEN=(0,255,0)
-
+    TEAL=(0, 255, 123)
+    SCREEN=(173, 224, 247)
 class GameSettings:
     """Settings for the game"""
     width: int = 500
@@ -61,14 +62,14 @@ class Game:
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     self.running = False
 
-            self.screen.fill(Colors.WHITE)
+            self.screen.fill(Colors.SCREEN)
 
             for player in self.players:
                 player.update()
                 player.draw(self.screen)
                 
             pygame.display.flip()
-            self.clock.tick(40)
+            self.clock.tick(60)
             
         pygame.quit()
 
@@ -141,5 +142,6 @@ p3= Player(game, 7, 90, 15,3, Colors.BLUE)
 game.add_player(p3)
 p4= Player(game, 5, 60, 11,4, Colors.GREEN)
 game.add_player(p4)
-
+p5= Player(game, 5, 30, 3,7, Colors.TEAL)
+game.add_player(p5)
 game.run()
