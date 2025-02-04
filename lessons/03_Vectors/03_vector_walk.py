@@ -64,7 +64,7 @@ class Player:
         # The rest is just for animation
         length = self.direction_vector.length()
         N = int(length // 3)
-        step = (final_position - self.position) / N
+        step = (final_position - self.position) / N   
        
         for i in range(N):
             self.position += step

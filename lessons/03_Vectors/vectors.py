@@ -17,7 +17,7 @@ class Colors:
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     RED = (255, 0, 0)
-    PLAYER_COLOR = (0, 0, 0)
+    PLAYER_COLOR = (0, 0, 255)
     BACKGROUND_COLOR = (255, 255, 255)
 
 
@@ -95,8 +95,7 @@ class Player:
         self.vel = pygame.Vector2(settings.player_v_x, settings.player_v_y)  # Velocity vector
 
 
-        
-        self.direction_vector = pygame.math.Vector2(100, 0)  # Initial direction vector
+
     # Direction functions. IMPORTANT! Using these functions isn't really
     # necessary, but it makes the code more readable. You could just use
     # self.vel.x < 0, but writing "self.going_left()" is a lot easier to read and
@@ -140,20 +139,12 @@ class Player:
     # Updates
     
     def update(self):
-        keys=pygame.key.get_pressed()
         """Update player position, continuously jumping"""
-        if keys[pygame.K_SPACE]:
-            self.vel=self.direction_vector*0.2
-            #self.update_jump()
-        if keys[pygame.K_LEFT]:
-                self.direction_vector = self.direction_vector.rotate(-5)
-        if keys[pygame.K_RIGHT]:
-                self.direction_vector = self.direction_vector.rotate(5)
+        if pygame.key.get_pressed()[pygame.K_SPACE]:
+            self.update_jump()
         self.update_v()
         self.update_pos()
-        self.vel+= -self.vel* 0.01
-        print("Velocity: " + str(self.vel))
-        print("Direction: " + str(self.direction_vector))
+        self.vel+= -self.vel* 0
     def update_v(self):
         """Update the player's velocity based on gravity and bounce on edges"""
          
@@ -204,10 +195,9 @@ class Player:
          
 
     def draw(self, screen):
-        end_position = self.pos + self.direction_vector
         pygame.draw.rect(screen, Colors.PLAYER_COLOR, (self.pos.x, self.pos.y, self.width, self.height))
-        pygame.draw.line(screen,(0,0,0), self.pos, end_position, 2)
+
 
 settings = GameSettings()
 game = Game(settings)
-game.run()
+game.run()  
