@@ -21,10 +21,10 @@ draw_grid(screen)
 v0 = Vector20(0,0)
 v1 = Vector20(0,1) # 1 length up
 
-v1_scaled = v1 * 5
+v1_scaled = v1 * 10
 start = draw_v20(screen, v0, v1_scaled)
 
-v1_rotated = v1.rotate(135) * 10 
+v1_rotated = v1.rotate(35) * 10 
 start = draw_v20(screen, v0, v1_rotated)
 
 # Update display

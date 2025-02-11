@@ -17,7 +17,7 @@ class Colors:
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     RED = (255, 0, 0)
-    PLAYER_COLOR = (0, 0, 0)
+    PLAYER_COLOR = (255, 0, 30)
     BACKGROUND_COLOR = (255, 255, 255)
 
 
@@ -26,16 +26,16 @@ class GameSettings:
     """Settings for the game"""
     width: int = 500
     height: int = 500
-    gravity: float = 0.3
+    gravity: float = 1 
     player_start_x: int = 100
     player_start_y: int = None
     player_v_y: float = 0  # Initial y velocity
     player_v_x: float = 4  # Initial x velocity
     player_width: int = 20
     player_height: int = 20
-    player_jump_velocity: float = 10
+    player_jump_velocity: float = 10 
     frame_rate: int = 50
-
+    
 
 class Game:
     """Main object for the top level of the game. Holds the main loop and other
@@ -50,11 +50,16 @@ class Game:
 
         self.screen = pygame.display.set_mode((self.settings.width, self.settings.height))
         self.clock = pygame.time.Clock()
+    def vec_to_center(self, pos):
+        position
+        
 
+        return 
         # Turn Gravity into a vector
-        self.gravity = pygame.Vector2(0, self.settings.gravity)
+        # self.gravity = pygame.Vector2(0, self.settings.gravity)
 
     def run(self):
+        
         """Main game loop"""
         player = Player(self)
 
@@ -76,7 +81,7 @@ class Game:
 
 class Player:
     """Player class, just a bouncing rectangle"""
-
+    
     def __init__(self, game: Game):
         self.game = game
         settings = self.game.settings
@@ -93,8 +98,8 @@ class Player:
         
         # Player's velocity
         self.vel = pygame.Vector2(settings.player_v_x, settings.player_v_y)  # Velocity vector
-
-
+        
+        self.gravity = pygame.Vector2(0, self.settings.gravity)
         
         self.direction_vector = pygame.math.Vector2(100, 0)  # Initial direction vector
     # Direction functions. IMPORTANT! Using these functions isn't really
@@ -136,14 +141,18 @@ class Player:
     def at_right(self):
         """Check if the player is at the right of the screen"""
         return self.pos.x >= self.game.settings.width - self.width
-    
+    Game.vec_to_center(self, pos):
     # Updates
     
     def update(self):
+        on_ground=self.pos.y==480
         keys=pygame.key.get_pressed()
         """Update player position, continuously jumping"""
-        if keys[pygame.K_SPACE]:
-            self.vel=self.direction_vector*0.2
+        if on_ground:
+            if keys[pygame.K_SPACE]:
+                self.vel=self.direction_vector*0.2
+                
+            
             #self.update_jump()
         if keys[pygame.K_LEFT]:
                 self.direction_vector = self.direction_vector.rotate(-5)
@@ -152,8 +161,6 @@ class Player:
         self.update_v()
         self.update_pos()
         self.vel+= -self.vel* 0.01
-        print("Velocity: " + str(self.vel))
-        print("Direction: " + str(self.direction_vector))
     def update_v(self):
         """Update the player's velocity based on gravity and bounce on edges"""
          
@@ -210,4 +217,5 @@ class Player:
 
 settings = GameSettings()
 game = Game(settings)
+
 game.run()
