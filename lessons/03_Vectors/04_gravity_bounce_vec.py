@@ -48,15 +48,19 @@ class Game:
         self.settings = settings
         self.running = True
 
-        self.screen = pygame.display.set_mode((self.settings.width, self.settings.height))
+    
+        self.screen = pygame.display.set_mode((GameSettings.width, GameSettings.height))
         self.clock = pygame.time.Clock()
+        self.center=pygame.math.Vector2(GameSettings.width/2,GameSettings.height/2)
     def vec_to_center(self, pos):
-        position
+        return self.center-pos
         
+    def game_draw(self):
+        pygame.draw.circle(self.screen,(235, 52, 52),(self.center,30))
 
-        return 
+        
         # Turn Gravity into a vector
-        # self.gravity = pygame.Vector2(0, self.settings.gravity)
+        self.gravity = pygame.Vector2(0, self.settings.gravity)
 
     def run(self):
         
@@ -84,7 +88,7 @@ class Player:
     
     def __init__(self, game: Game):
         self.game = game
-        settings = self.game.settings
+        self.settings = self.game.settings
 
         self.width = settings.player_width
         self.height = settings.player_height
@@ -141,7 +145,10 @@ class Player:
     def at_right(self):
         """Check if the player is at the right of the screen"""
         return self.pos.x >= self.game.settings.width - self.width
-    Game.vec_to_center(self, pos):
+    
+    
+    #Game.vec_to_center(pos)
+     
     # Updates
     
     def update(self):
@@ -211,10 +218,11 @@ class Player:
          
 
     def draw(self, screen):
+        Game.game_draw()
         end_position = self.pos + self.direction_vector
         pygame.draw.rect(screen, Colors.PLAYER_COLOR, (self.pos.x, self.pos.y, self.width, self.height))
         pygame.draw.line(screen,(0,0,0), self.pos, end_position, 2)
-
+        game.vec_to_center("")
 settings = GameSettings()
 game = Game(settings)
 

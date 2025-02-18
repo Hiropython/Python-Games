@@ -20,7 +20,7 @@ lander_angle = 0
 lander_velocity = pygame.Vector2(0, 0)
 lander_acceleration = 0.2
 lander_rotation_speed = 5
-
+   
 # Load and scale the lander image
 lander_image = pygame.image.load(assets/'alien1.gif')
 

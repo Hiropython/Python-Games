@@ -26,11 +26,13 @@ start = draw_v20(screen, v0, v1)
 v2=v1.rotate(90)
 v3=v2.rotate(90)
 v4=v3.rotate(90)
-v5=v4.rotate(90)
-start = draw_v20(screen, start, v2)
+#v5=v4.rotate(190)
+start = draw_v20(screen, start, v2)*1.5
+print(v2)
+print(v3)
 start = draw_v20(screen, start, v3)
 start = draw_v20(screen, start, v4)
-start = draw_v20(screen, start, v5)
+#start = draw_v20(screen, start, v5)
 
 # Update display
 pygame.display.flip()

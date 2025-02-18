@@ -96,7 +96,39 @@ class Game:
             self.update()
             self.draw()
             self.clock.tick(self.settings.fps)
+            self.move()
         pygame.quit()
+    
+    
+
+    
+    def move(self):
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
+            """Moves the player in the direction of the current angle."""
+        
+        
+            init_position = self.spaceship.position # Save the initial position for the animation
+            
+            # Calculate the final position after moving. Its just addition!
+            final_position = Spaceship.position + Spaceship.direction_vector
+            
+            # The rest is just for animation
+            length = Spaceship.direction_vector.length()
+            N = int(length // 3)
+            step = (final_position - Spaceship.position) / N   
+        
+            for i in range(N):
+                Spaceship.position += step
+                Game.screen.fill(Settings.BACKGROUND_COLOR)
+                Spaceship.draw(show_line=False)
+                pygame.draw.line(Game.screen, Settings.LINE_COLOR, init_position, final_position, 2)
+                pygame.display.flip()
+                #clock.tick(Settings.FPS)
+
+            
+
 
 # Start the game
 if __name__ == "__main__":
