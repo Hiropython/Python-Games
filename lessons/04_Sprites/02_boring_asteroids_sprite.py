@@ -1,6 +1,9 @@
 import pygame
 import math
+from pathlib import Path
 
+
+assets = Path(__file__).parent / "images"
 
 class Settings:
     """Class to store game configuration."""
@@ -77,7 +80,12 @@ class Spaceship(pygame.sprite.Sprite):
         # need to add the projectile to the group to make sure it is updated.
         self.game.add(new_projectile)
 
-
+class AlienSpaceship(Spaceship):
+    
+    def create_spaceship_image(self):
+        """Creates the spaceship shape as a surface."""
+        
+        return pygame.image.load(assets/'alien1.gif')
     # The Sprite class defines an update method that is called every frame. We
     # can override this method to add our own functionality. In this case, we
     # are going to handle input and update the image of the spaceship. However,
@@ -96,10 +104,36 @@ class Spaceship(pygame.sprite.Sprite):
         if keys[pygame.K_SPACE] and self.ready_to_shoot():
             self.fire_projectile()
 
+        if keys[pygame.K_UP]:
+            thrust=pygame.Vector2.from_polar((0.1,self.angle-90))
+            self.velocity+=thrust
+
+        if self.rect.centerx>600:
+            self.rect.centerx=0
+
+        if self.rect.centerx<0:
+            self.rect.centerx=600
+
+        if self.rect.centery>600:
+            self.rect.centery=0
+
+        if self.rect.centery<0:
+            self.rect.centery=600
+
+        if keys[pygame.K_s]:
+            self.velocity=pygame.Vector2(0, 0) 
+        
+        
+
+            
+
+
+
         self.image = pygame.transform.rotate(self.original_image, -self.angle)
 
         # Reassigning the rect because the image has changed.
         self.rect = self.image.get_rect(center=self.rect.center)
+        
         
         self.rect.center += self.velocity
 
@@ -148,6 +182,9 @@ class Projectile(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.center += self.velocity
+
+        if self.rect.centerx<0 or self.rect.centerx>600 or self.rect.centery<0 or self.rect.centery>600:
+            self.kill()
 
 
 class Game:
@@ -217,7 +254,7 @@ if __name__ == "__main__":
 
     game = Game(settings)
 
-    spaceship = Spaceship(
+    spaceship = AlienSpaceship(
         settings, position=(settings.width // 2, settings.height // 2)
     )
 

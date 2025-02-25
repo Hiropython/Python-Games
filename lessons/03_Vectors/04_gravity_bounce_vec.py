@@ -56,7 +56,7 @@ class Game:
         return self.center-pos
         
     def game_draw(self):
-        pygame.draw.circle(self.screen,(235, 52, 52),(self.center,30))
+        pygame.draw.circle(self.screen,(235, 52, 52),self.center,50)
 
         
         # Turn Gravity into a vector
@@ -77,6 +77,7 @@ class Game:
 
             self.screen.fill(Colors.BACKGROUND_COLOR)
             player.draw(self.screen)
+            self.game_draw()
             pygame.display.flip()
             self.clock.tick(self.settings.frame_rate)
 
@@ -171,7 +172,7 @@ class Player:
     def update_v(self):
         """Update the player's velocity based on gravity and bounce on edges"""
          
-        self.vel += self.game.gravity  # Add gravity to the velocity
+        self.vel += self.gravity  # Add gravity to the velocity
 
         if self.at_bottom() and self.going_down():
             self.vel.y = 0
@@ -218,11 +219,12 @@ class Player:
          
 
     def draw(self, screen):
-        Game.game_draw()
+        #Game.game_draw("")
         end_position = self.pos + self.direction_vector
         pygame.draw.rect(screen, Colors.PLAYER_COLOR, (self.pos.x, self.pos.y, self.width, self.height))
         pygame.draw.line(screen,(0,0,0), self.pos, end_position, 2)
-        game.vec_to_center("")
+        pygame.draw.line(screen,(0,0,0), self.pos,game.center)
+        game.vec_to_center(self.pos)
 settings = GameSettings()
 game = Game(settings)
 
