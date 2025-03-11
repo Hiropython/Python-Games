@@ -6,7 +6,7 @@ obstacles. The game should end when the player collides with an obstacle ...
 but it does not. It's a work in progress, and you'll have to finish it. 
 
 """
-import pygame
+import pygame 
 import random
 from pathlib import Path
 
@@ -25,25 +25,27 @@ pygame.display.set_caption("Dino Jump")
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+COLOR1= (255, 100, 61)
 
 # FPS
 FPS = 60
 
 # Player attributes
 class Settings:
-    gravity=0.3
+    gravity=0.8
 PLAYER_SIZE = 50
 
 player_speed = 5
 
 # Obstacle attributes
 OBSTACLE_WIDTH = 20
-OBSTACLE_HEIGHT = 60
-obstacle_speed = 5
+OBSTACLE_HEIGHT = 50
+obstacle_speed = 7
+
 
 # Font
 font = pygame.font.SysFont(None, 36)
-
+font2 = pygame.font.SysFont(None,100)
 
 # Define an obstacle class
 class Obstacle(pygame.sprite.Sprite):
@@ -90,10 +92,11 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = HEIGHT - PLAYER_SIZE - 10
         self.speed = player_speed
         self.y_vel=0
-        self.dino=pygame.image.load(images_dir / "dino_0.png")
+        self.dino=pygame.image.load(images_dir / "dino_2.png")
         self.image=self.dino
         self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE))
         self.rect = self.image.get_rect(center=self.rect.center)
+        self.frame_num=0
         
 
     def update(self):
@@ -102,6 +105,14 @@ class Player(pygame.sprite.Sprite):
         self.y_vel=self.y_vel-Settings.gravity
         #if keys[pygame.K_UP]:
             #self.rect.y -= self.speed
+        self.frame_num+=1
+        if self.frame_num>1:
+            self.frame_num=0
+            self.image=pygame.image.load(images_dir / "dino_2.png")
+        else:
+            self.image=pygame.image.load(images_dir / "dino_3.png")
+        self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE))
+
         
        
                 
@@ -117,11 +128,13 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = HEIGHT 
             self.y_vel=0
             if keys[pygame.K_SPACE]:
-                self.y_vel=8
+                self.y_vel=13
 class Game:
+    personal_high=0
 # Create a player object
     def __init__ (self):
         self.obstacles = pygame.sprite.Group()
+    
 
         
 
@@ -180,7 +193,9 @@ class Game:
 
         
             # Draw everything
-            screen.fill(WHITE)
+            screen.fill(COLOR1)
+            pygame.draw.rect(screen,(252, 186, 3),(0,275,WIDTH,HEIGHT))
+            
             #pygame.draw.rect(screen, BLUE, self.player)
             self.obstacles.draw(screen)
             self.player_group.draw(screen)
@@ -193,13 +208,27 @@ class Game:
             clock.tick(FPS)
 
         # Game over screen
-        screen.fill(WHITE)
+        screen.fill(COLOR1)
+        if self.obstacle_count>Game.personal_high:
+            Game.personal_high=self.obstacle_count
 
 if __name__ == "__main__":
     Game ().game_loop()
     while True:
-        obstacle_text = font.render("Game over", True, BLACK)
-        screen.blit(obstacle_text, (WIDTH/2, HEIGHT/2))
+        obstacle_text = font2.render("Game over", True, BLACK)
+        screen.blit(obstacle_text, (WIDTH/2-175, HEIGHT/2-100))
+        obstacle_text = font.render("Press R to restart", True, BLACK)
+        screen.blit(obstacle_text, (WIDTH/2-100, HEIGHT/2-25))
+        obstacle_text = font.render(f"High score: {Game.personal_high}", True, BLACK)
+        screen.blit(obstacle_text, (WIDTH/2-100, HEIGHT/2))
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_r]:
+            Game ().game_loop()
+            
+            
+                
+
+        pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
