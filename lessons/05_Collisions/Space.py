@@ -32,13 +32,13 @@ FPS = 60
 
 # Player attributes
 class Settings:
-    gravity=0.8
+    gravity=0.05
 PLAYER_SIZE = 50
 
 player_speed = 5
 
 # Obstacle attributes
-OBSTACLE_WIDTH = 20
+OBSTACLE_WIDTH = 50
 OBSTACLE_HEIGHT = 50
 obstacle_speed = 7
 
@@ -55,9 +55,9 @@ class Obstacle(pygame.sprite.Sprite):
         self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = WIDTH
-        self.rect.y = HEIGHT - OBSTACLE_HEIGHT 
+        self.rect.y = HEIGHT*random.random() - OBSTACLE_HEIGHT 
         self.game=game
-        self.cactus=pygame.image.load(images_dir/"cactus_9.png")
+        self.cactus=pygame.image.load(images_dir/"asteroid1.png")
         self.explosion = pygame.image.load(images_dir / "explosion1.gif")
         self.image=self.cactus
         self.image = pygame.transform.scale(self.image, (OBSTACLE_WIDTH, OBSTACLE_HEIGHT))
@@ -83,7 +83,7 @@ class Obstacle(pygame.sprite.Sprite):
 
 # Define a player class
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,game):
         super().__init__()
         self.image = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE))
         #self.image.fill(BLUE)
@@ -92,32 +92,35 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = HEIGHT - PLAYER_SIZE - 10
         self.speed = player_speed
         self.y_vel=0
-        self.dino=pygame.image.load(images_dir / "dino_2.png")
+        self.dino=pygame.image.load(images_dir / "alien1.gif")
         self.image=self.dino
         self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE))
         self.rect = self.image.get_rect(center=self.rect.center)
         self.frame_num=0
+        self.last_shot = pygame.time.get_ticks()
+        self.shoot_delay = 250
+        self.game=game
+        
         
 
     def update(self):
         keys = pygame.key.get_pressed()
-        self.rect.y= self.rect.y-self.y_vel
+        if keys[pygame.K_UP]:
+            #self.rect.y= self.rect.y-self.y_vel
+            self.y_vel=3
+        if keys[pygame.K_DOWN]:
+            self.y_vel= -2.5
         self.y_vel=self.y_vel-Settings.gravity
         #if keys[pygame.K_UP]:
-            #self.rect.y -= self.speed
+        self.rect.y -= self.y_vel
         self.frame_num+=1
-        if self.frame_num>1:
-            self.frame_num=0
-            self.image=pygame.image.load(images_dir / "dino_2.png")
+        if self.frame_num<10:
+            self.image=pygame.image.load(images_dir / "alien1.gif")
         else:
-            self.image=pygame.image.load(images_dir / "dino_3.png")
+            self.image=pygame.image.load(images_dir / "alien2.gif")
+            if self.frame_num>20:
+                self.frame_num=0
         self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE))
-
-        
-       
-                
-            
-
         #if keys[pygame.K_DOWN]:
             #self.rect.y += self.speed
 
@@ -127,21 +130,81 @@ class Player(pygame.sprite.Sprite):
         if self.rect.bottom > HEIGHT:
             self.rect.bottom = HEIGHT 
             self.y_vel=0
-            if keys[pygame.K_SPACE]:
-                self.y_vel=13
+        if keys[pygame.K_SPACE] and self.ready_to_shoot():
+            self.fire_projectile()
+    def fire_projectile(self):
+        """Creates and fires a projectile."""
+
+        new_projectile = Projectile(
+            Settings,
+            position=self.rect.center,
+            angle=90,
+            velocity=5,
+            )
+        self.game.add(new_projectile)
+    def ready_to_shoot(self):
+        if pygame.time.get_ticks() - self.last_shot > self.shoot_delay:
+            self.last_shot = pygame.time.get_ticks()
+            return True
+        return False
+class Projectile(pygame.sprite.Sprite):
+    """Class to handle projectile movement and drawing."""
+
+    def __init__(self, settings, position, velocity, angle):
+        super().__init__()
+
+        self.game = None  # will be set in Game.add()
+        self.settings = settings
+
+        # The (0,-1) part makes the vector point up, and the rotate method
+        # rotates the vector by the given angle. Finally, we multiply the vector
+        # by the velocity (scalar) to get the final velocity vector.
+        self.velocity = pygame.Vector2(0, -1).rotate(angle) * velocity
+
+        # Dont forget to create the image and rect attributes for the sprite
+        self.image = pygame.Surface(
+            (11,11),
+            pygame.SRCALPHA,
+        )
+
+        half_size =11 // 2
+
+        pygame.draw.circle(
+            self.image,
+            (255,0,0),
+            center=(half_size + 1, half_size + 1),
+            radius=half_size,
+        )
+    
+
+        # Notice that we are using the rect attribute to store the position of the projectile
+        self.rect = self.image.get_rect(center=position)
+
+    def update(self):
+        self.rect.center += self.velocity
+
+        if self.rect.centerx<0 or self.rect.centerx>600 or self.rect.centery<0 or self.rect.centery>600:
+            self.kill()
 class Game:
     personal_high=0
 # Create a player object
     def __init__ (self):
+
         self.obstacles = pygame.sprite.Group()
     
 
         
 
         self.obstacle_count = 0
-        self.player = Player()
+        self.player = Player(self)
         self.player_group = pygame.sprite.GroupSingle(self.player)
+    def add(self, sprite):
+        """Adds a sprite to the game. Really important! This group is used to
+        update and draw all of the sprites."""
 
+        sprite.game = self
+
+        self.all_sprites.add(sprite)
     # Add obstacles periodically
     def add_obstacle(self):
         # random.random() returns a random float between 0 and 1, so a value
