@@ -25,7 +25,7 @@ pygame.display.set_caption("Dino Jump")
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-COLOR1= (255, 100, 61)
+COLOR1= (255, 255, 255)
 
 # FPS
 FPS = 60
@@ -68,7 +68,7 @@ class Obstacle(pygame.sprite.Sprite):
         # Remove the obstacle if it goes off screen
         if self.rect.right < 0:
             self.kill()
-            self.game.obstacle_count=self.game.obstacle_count+1
+            #self.game.obstacle_count=self.game.obstacle_count+1
 
     def explode(self):
         """Replace the image with an explosition image."""
@@ -142,6 +142,7 @@ class Player(pygame.sprite.Sprite):
             velocity=5,
             )
         self.game.add(new_projectile)
+        self.game.projectiles.add(new_projectile)
     def ready_to_shoot(self):
         if pygame.time.get_ticks() - self.last_shot > self.shoot_delay:
             self.last_shot = pygame.time.get_ticks()
@@ -191,10 +192,12 @@ class Game:
     def __init__ (self):
 
         self.obstacles = pygame.sprite.Group()
+        self.all_sprites = pygame.sprite.Group()
+        self.projectiles= pygame.sprite.Group()
     
 
         
-
+        
         self.obstacle_count = 0
         self.player = Player(self)
         self.player_group = pygame.sprite.GroupSingle(self.player)
@@ -226,6 +229,7 @@ class Game:
         clock = pygame.time.Clock()
         game_over = False
         last_obstacle_time = pygame.time.get_ticks()
+        self.obstacle_count=0
 
         # Group for obstacles
         
@@ -247,21 +251,35 @@ class Game:
                 self.add_obstacle()
             
             self.obstacles.update()
+            self.all_sprites.update()
 
             # Check for collisions
             collider = pygame.sprite.spritecollide(self.player, self.obstacles, dokill=False)
+            for projectile in self.projectiles:
+                collider_2 = pygame.sprite.spritecollide(projectile, self.obstacles, dokill=True)
+                if collider_2:
+                    
+                    self.obstacle_count+=1
+                    collider_2[0].explode()
+            
             if collider:
                 collider[0].explode()
                 game_over=True
+            
+
+                
+
+            
 
         
             # Draw everything
             screen.fill(COLOR1)
-            pygame.draw.rect(screen,(252, 186, 3),(0,275,WIDTH,HEIGHT))
+            pygame.draw.rect(screen,(89, 89, 89),(0,275,WIDTH,HEIGHT))
             
             #pygame.draw.rect(screen, BLUE, self.player)
             self.obstacles.draw(screen)
             self.player_group.draw(screen)
+            self.all_sprites.draw(screen)
 
             # Display obstacle count
             obstacle_text = font.render(f"Score: {self.obstacle_count}", True, BLACK)
@@ -276,14 +294,18 @@ class Game:
             Game.personal_high=self.obstacle_count
 
 if __name__ == "__main__":
-    Game ().game_loop()
+    G=Game()
+    G.game_loop()
     while True:
+        print(G.obstacle_count)
         obstacle_text = font2.render("Game over", True, BLACK)
         screen.blit(obstacle_text, (WIDTH/2-175, HEIGHT/2-100))
         obstacle_text = font.render("Press R to restart", True, BLACK)
         screen.blit(obstacle_text, (WIDTH/2-100, HEIGHT/2-25))
         obstacle_text = font.render(f"High score: {Game.personal_high}", True, BLACK)
         screen.blit(obstacle_text, (WIDTH/2-100, HEIGHT/2))
+        obstacle_text = font.render(f"Score: {G.obstacle_count}", True, BLACK)
+        screen.blit(obstacle_text, (WIDTH/2-100, HEIGHT/2+30))
         keys = pygame.key.get_pressed()
         if keys[pygame.K_r]:
             Game ().game_loop()
