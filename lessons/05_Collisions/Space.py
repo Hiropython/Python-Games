@@ -59,15 +59,20 @@ class Obstacle(pygame.sprite.Sprite):
         self.game=game
         self.cactus=pygame.image.load(images_dir/"asteroid1.png")
         self.explosion = pygame.image.load(images_dir / "explosion1.gif")
+        self.cactus = pygame.transform.scale(self.cactus, (OBSTACLE_WIDTH, OBSTACLE_HEIGHT))
         self.image=self.cactus
-        self.image = pygame.transform.scale(self.image, (OBSTACLE_WIDTH, OBSTACLE_HEIGHT))
         self.rect = self.image.get_rect(center=self.rect.center)
-
+        self.angle=0
     def update(self):
         self.rect.x -= obstacle_speed
         # Remove the obstacle if it goes off screen
         if self.rect.right < 0:
             self.kill()
+        self.image = pygame.transform.rotate(self.cactus, -self.angle)
+
+        # Reassigning the rect because the image has changed.
+        self.rect = self.image.get_rect(center=self.rect.center)
+        self.angle-=5
             #self.game.obstacle_count=self.game.obstacle_count+1
 
     def explode(self):
@@ -98,7 +103,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.rect.center)
         self.frame_num=0
         self.last_shot = pygame.time.get_ticks()
-        self.shoot_delay = 250
+        self.shoot_delay = 400
         self.game=game
         
         
@@ -137,7 +142,7 @@ class Player(pygame.sprite.Sprite):
 
         new_projectile = Projectile(
             Settings,
-            position=self.rect.center,
+            position=(self.rect.centerx+20,self.rect.centery),
             angle=90,
             velocity=5,
             )
@@ -156,6 +161,7 @@ class Projectile(pygame.sprite.Sprite):
 
         self.game = None  # will be set in Game.add()
         self.settings = settings
+        self.obstacle = Obstacle
 
         # The (0,-1) part makes the vector point up, and the rotate method
         # rotates the vector by the given angle. Finally, we multiply the vector
@@ -182,6 +188,7 @@ class Projectile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=position)
 
     def update(self):
+        
         self.rect.center += self.velocity
 
         if self.rect.centerx<0 or self.rect.centerx>600 or self.rect.centery<0 or self.rect.centery>600:
@@ -258,7 +265,7 @@ class Game:
             for projectile in self.projectiles:
                 collider_2 = pygame.sprite.spritecollide(projectile, self.obstacles, dokill=True)
                 if collider_2:
-                    
+                    projectile.kill()
                     self.obstacle_count+=1
                     collider_2[0].explode()
             
@@ -297,7 +304,6 @@ if __name__ == "__main__":
     G=Game()
     G.game_loop()
     while True:
-        print(G.obstacle_count)
         obstacle_text = font2.render("Game over", True, BLACK)
         screen.blit(obstacle_text, (WIDTH/2-175, HEIGHT/2-100))
         obstacle_text = font.render("Press R to restart", True, BLACK)
@@ -308,7 +314,8 @@ if __name__ == "__main__":
         screen.blit(obstacle_text, (WIDTH/2-100, HEIGHT/2+30))
         keys = pygame.key.get_pressed()
         if keys[pygame.K_r]:
-            Game ().game_loop()
+            G=Game()
+            G.game_loop()
             
             
                 
