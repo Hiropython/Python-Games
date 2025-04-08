@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 assets = Path(__file__).parent / "images"
-
+images_dir = Path(__file__).parent / "images" if (Path(__file__).parent / "images").exists() else Path(__file__).parent / "assets"
 class Settings:
     """Class to store game configuration."""
 
@@ -81,6 +81,7 @@ class Spaceship(pygame.sprite.Sprite):
         # Important! The game will update all of the sprites in the group, so we
         # need to add the projectile to the group to make sure it is updated.
         self.game.add(new_projectile)
+        self.game.projectiles.add(new_projectile)
 
 class AlienSpaceship(Spaceship):
     
@@ -194,10 +195,22 @@ class Obstacle(pygame.sprite.Sprite):
 
         super().__init__()
         self.image = pygame.Surface((OBSTACLE_WIDTH, OBSTACLE_HEIGHT))
-        self.image.fill(0,0,0)
+        self.image.fill((0,0,0))
         self.rect = self.image.get_rect()
-        self.rect.x = settings.width
-        self.rect.y = settings. height*random.random() - OBSTACLE_HEIGHT 
+        edge=random.randint(0,3)
+        if edge==0:
+            self.rect.x = settings.width*random.random()
+            self.rect.y = settings.height
+        elif edge==1:
+            self.rect.x = settings.width*random.random()
+            self.rect.y = 0
+        elif edge==2:
+            self.rect.x = settings.width
+            self.rect.y = settings.height*random.random()
+        else:
+            self.rect.x = 0
+            self.rect.y = settings.height*random.random()
+
         self.game=game
         self.cactus=pygame.image.load(images_dir/"asteroid1.png")
         self.explosion = pygame.image.load(images_dir / "explosion1.gif")
@@ -205,11 +218,30 @@ class Obstacle(pygame.sprite.Sprite):
         self.image=self.cactus
         self.rect = self.image.get_rect(center=self.rect.center)
         self.angle=0
+        self.obstacle_xspeed=random.random()
+        self.obstacle_yspeed=random.random()
+    def update(self):
+        self.rect.x -= self.obstacle_xspeed
+        self.rect.y -= self.obstacle_yspeed
+        if self.rect.right < 0:
+            self.rect.right= settings.width
+        self.image = pygame.transform.rotate(self.cactus, -self.angle)
+
+        self.rect = self.image.get_rect(center=self.rect.center)
+        self.angle-=2
+            #self.game.obstacle_count=self.game.obstacle_count+1
+
+    def explode(self):
+        """Replace the image with an explosition image."""
+        OBSTACLE_HEIGHT=20
+        # Load the explosion image
+        self.image = self.explosion
+        self.image = pygame.transform.scale(self.image, (OBSTACLE_WIDTH, OBSTACLE_HEIGHT))
+        self.rect = self.image.get_rect(center=self.rect.center)
 
 
 class Game:
     """Class to manage the game loop and objects."""
-
     def __init__(self, settings):
         pygame.init()
         pygame.key.set_repeat(1250, 1250)
@@ -222,8 +254,23 @@ class Game:
 
         self.clock = pygame.time.Clock()
         self.running = True
-
         self.all_sprites = pygame.sprite.Group()
+        self.obstacles = pygame.sprite.Group()
+        self.projectiles = pygame.sprite.Group()
+    def add_obstacle(self):
+        # random.random() returns a random float between 0 and 1, so a value
+        # of 0.25 means that there is a 25% chance of adding an obstacle. Since
+        # add_obstacle() is called every 100ms, this means that on average, an
+        # obstacle will be added every 400ms.
+        # The combination of the randomness and the time allows for random
+        # obstacles, but not too close together. 
+        
+        if random.random() < .01:
+            obstacle = Obstacle(self)
+            self.add(obstacle)
+            self.obstacles.add(obstacle)
+            return 1
+        return 0
 
     def add(self, sprite):
         """Adds a sprite to the game. Really important! This group is used to
@@ -232,6 +279,7 @@ class Game:
         sprite.game = self
 
         self.all_sprites.add(sprite)
+        
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -260,13 +308,18 @@ class Game:
        
         
         while self.running:
-
+            self.add_obstacle()
             self.handle_events()
             self.update()
             self.draw()
             self.clock.tick(self.settings.fps)
-
+            for projectile in self.projectiles:
+                collider = pygame.sprite.spritecollide(projectile, self.obstacles, dokill=True)
+                if collider:
+                    projectile.kill()  
+                    collider[0].explode()
         pygame.quit()
+    
 
 
 if __name__ == "__main__":
