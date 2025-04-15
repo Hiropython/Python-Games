@@ -14,11 +14,10 @@ from pathlib import Path
 pygame.init()
 
 images_dir = Path(__file__).parent / "images" if (Path(__file__).parent / "images").exists() else Path(__file__).parent / "assets"
-
 # Screen dimensions
 WIDTH, HEIGHT = 600, 300
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Dino Jump")
+pygame.display.set_caption("Asteroids")
 
 # Colors
 
@@ -73,7 +72,7 @@ class Obstacle(pygame.sprite.Sprite):
         # Reassigning the rect because the image has changed.
         self.rect = self.image.get_rect(center=self.rect.center)
         self.angle-=5
-            #self.game.obstacle_count=self.game.obstacle_count+1
+        self.game.obstacle_count=self.game.obstacle_count+1
 
     def explode(self):
         """Replace the image with an explosition image."""

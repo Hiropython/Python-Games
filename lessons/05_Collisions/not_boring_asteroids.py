@@ -2,13 +2,13 @@ import pygame
 import math
 import random
 from pathlib import Path
-
-
+pygame.init()
+font = pygame.font.SysFont(None, 36)
 assets = Path(__file__).parent / "images"
 images_dir = Path(__file__).parent / "images" if (Path(__file__).parent / "images").exists() else Path(__file__).parent / "assets"
 class Settings:
     """Class to store game configuration."""
-
+    Game_over=False
     width = 800
     height = 600
     fps = 60
@@ -19,6 +19,9 @@ class Settings:
     colors = {"white": (255, 255, 255), "black": (0, 0, 0), "red": (255, 0, 0)}
 OBSTACLE_WIDTH=50
 OBSTACLE_HEIGHT=50
+
+screen = pygame.display.set_mode((Settings.width, Settings.height))
+
 
 # Notice that this Spaceship class is a bit different: it is a subclass of
 # Sprite. Rather than a plain class, like in the previous examples, this class
@@ -95,6 +98,11 @@ class AlienSpaceship(Spaceship):
     # we also need to call the update method of the parent class, so we use
     # super().update()
     def update(self):
+        collider2 = pygame.sprite.spritecollide(self,self.game.obstacles, dokill=True)
+        if collider2:
+            self.game.Hp-=1
+            if self.game.Hp<1:
+                Settings.Game_over=True
         
         
         keys = pygame.key.get_pressed()
@@ -218,8 +226,8 @@ class Obstacle(pygame.sprite.Sprite):
         self.image=self.cactus
         self.rect = self.image.get_rect(center=self.rect.center)
         self.angle=0
-        self.obstacle_xspeed=random.random()
-        self.obstacle_yspeed=random.random()
+        self.obstacle_xspeed=random.choice((-1,1))
+        self.obstacle_yspeed=random.choice((-1,1))
     def update(self):
         self.rect.x -= self.obstacle_xspeed
         self.rect.y -= self.obstacle_yspeed
@@ -249,9 +257,10 @@ class Game:
         self.settings = settings
         self.screen = pygame.display.set_mode((self.settings.width, self.settings.height))
         
-
+    
         pygame.display.set_caption("Really Boring Asteroids")
-
+        self.Hp= 5
+        self.obstacle_count=  0
         self.clock = pygame.time.Clock()
         self.running = True
         self.all_sprites = pygame.sprite.Group()
@@ -265,7 +274,7 @@ class Game:
         # The combination of the randomness and the time allows for random
         # obstacles, but not too close together. 
         
-        if random.random() < .01:
+        if random.random() < 0.01:
             obstacle = Obstacle(self)
             self.add(obstacle)
             self.obstacles.add(obstacle)
@@ -284,7 +293,8 @@ class Game:
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.running = False
+                Game.running=False
+                
 
     def update(self):
 
@@ -295,6 +305,15 @@ class Game:
 
     def draw(self):
         self.screen.fill(self.settings.colors["black"])
+        obstacle_text = font.render(f"Score: {self.obstacle_count}", True, (255, 255, 255))
+        screen.blit(obstacle_text, (10, 10))
+        obstacle_text = font.render(f"Hp: {self.Hp}", True, (255, 255, 255))
+        screen.blit(obstacle_text, (10, 50))
+
+        if Settings.Game_over:
+            obstacle_text = font.render("Game over", True, (255, 255, 255))
+            screen.blit(obstacle_text, (200, 200))
+
 
         # The sprite group has a draw method that will draw all of the sprites in
         # the group.
@@ -308,6 +327,8 @@ class Game:
        
         
         while self.running:
+        
+
             self.add_obstacle()
             self.handle_events()
             self.update()
@@ -317,10 +338,10 @@ class Game:
                 collider = pygame.sprite.spritecollide(projectile, self.obstacles, dokill=True)
                 if collider:
                     projectile.kill()  
+                    self.obstacle_count+=1
                     collider[0].explode()
         pygame.quit()
-    
-
+            
 
 if __name__ == "__main__":
 
