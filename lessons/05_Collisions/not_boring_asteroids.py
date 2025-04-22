@@ -4,15 +4,17 @@ import random
 from pathlib import Path
 pygame.init()
 font = pygame.font.SysFont(None, 36)
+font2 = pygame.font.SysFont(None, 50)
 assets = Path(__file__).parent / "images"
 images_dir = Path(__file__).parent / "images" if (Path(__file__).parent / "images").exists() else Path(__file__).parent / "assets"
 class Settings:
     """Class to store game configuration."""
     Game_over=False
-    width = 800
+    cheating= False
+    width = 600
     height = 600
     fps = 60
-    triangle_size = 20
+    triangle_size = 20.   
     projectile_speed = 5
     projectile_size = 11
     shoot_delay = 250  # 250 milliseconds between shots, or 4 shots per second
@@ -114,11 +116,39 @@ class AlienSpaceship(Spaceship):
             self.angle += 5
 
         if keys[pygame.K_SPACE] and self.ready_to_shoot():
+            Settings.projectile_size = 11
+            Settings.projectile_speed = 5
+            Settings.shoot_delay = 250
             self.fire_projectile()
+
+        if keys[pygame.K_d] and self.ready_to_shoot():
+            Settings.projectile_size = 50
+            Settings.projectile_speed = 5
+            Settings.shoot_delay = 250
+            self.fire_projectile()
+
+        if keys[pygame.K_a] and self.ready_to_shoot():
+            Settings.projectile_size = 11
+            Settings.projectile_speed = 20
+            Settings.shoot_delay = 250
+            self.fire_projectile()
+
+        if keys[pygame.K_TAB]:
+            Settings.cheating= True
+
+        if keys[pygame.K_TAB]:
+            Settings.cheating= True
+        
+
+       
 
         if keys[pygame.K_UP]:
             thrust=pygame.Vector2.from_polar((0.1,self.angle-90))
             self.velocity+=thrust
+
+        if keys[pygame.K_DOWN]:
+            thrust=pygame.Vector2.from_polar((0.1,self.angle-90))
+            self.velocity-=thrust
             
 
         if self.rect.centerx>600:
@@ -257,7 +287,7 @@ class Game:
         self.settings = settings
         self.screen = pygame.display.set_mode((self.settings.width, self.settings.height))
         
-    
+        Settings.Game_over= False
         pygame.display.set_caption("Really Boring Asteroids")
         self.Hp= 5
         self.obstacle_count=  0
@@ -274,7 +304,7 @@ class Game:
         # The combination of the randomness and the time allows for random
         # obstacles, but not too close together. 
         
-        if random.random() < 0.01:
+        if random.random() < 0.02:
             obstacle = Obstacle(self)
             self.add(obstacle)
             self.obstacles.add(obstacle)
@@ -304,20 +334,26 @@ class Game:
         self.all_sprites.update()
 
     def draw(self):
-        self.screen.fill(self.settings.colors["black"])
-        obstacle_text = font.render(f"Score: {self.obstacle_count}", True, (255, 255, 255))
-        screen.blit(obstacle_text, (10, 10))
-        obstacle_text = font.render(f"Hp: {self.Hp}", True, (255, 255, 255))
-        screen.blit(obstacle_text, (10, 50))
+        if not Settings.Game_over:
+            self.screen.fill(self.settings.colors["black"])
+            obstacle_text = font.render(f"Score: {self.obstacle_count}", True, (255, 255, 255))
+            screen.blit(obstacle_text, (10, 10))
+            obstacle_text = font.render(f"Hp: {self.Hp}", True, (255, 255, 255))
+            screen.blit(obstacle_text, (10, 50))
+            self.all_sprites.draw(self.screen)
 
         if Settings.Game_over:
-            obstacle_text = font.render("Game over", True, (255, 255, 255))
+            self.screen.fill(self.settings.colors["black"])
+            obstacle_text = font.render(f"Score: {self.obstacle_count}", True, (255, 255, 255))
+            screen.blit(obstacle_text, (10, 10))
+            obstacle_text = font2.render("Game over", True, (255, 255, 255))
             screen.blit(obstacle_text, (200, 200))
 
 
         # The sprite group has a draw method that will draw all of the sprites in
         # the group.
-        self.all_sprites.draw(self.screen)
+        
+        
 
         pygame.display.flip()
 
@@ -327,11 +363,10 @@ class Game:
        
         
         while self.running:
-        
-
-            self.add_obstacle()
+            if not Settings.Game_over and not Settings.cheating:
+                self.update()
+                self.add_obstacle()
             self.handle_events()
-            self.update()
             self.draw()
             self.clock.tick(self.settings.fps)
             for projectile in self.projectiles:
@@ -340,7 +375,11 @@ class Game:
                     projectile.kill()  
                     self.obstacle_count+=1
                     collider[0].explode()
-        pygame.quit()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                    
             
 
 if __name__ == "__main__":
