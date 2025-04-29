@@ -72,7 +72,7 @@ class Obstacle(pygame.sprite.Sprite):
         # Reassigning the rect because the image has changed.
         self.rect = self.image.get_rect(center=self.rect.center)
         self.angle-=5
-        self.game.obstacle_count=self.game.obstacle_count+1
+        #self.game.obstacle_count=self.game.obstacle_count+1
 
     def explode(self):
         """Replace the image with an explosition image."""

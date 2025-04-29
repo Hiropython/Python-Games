@@ -6,11 +6,11 @@ pygame.init()
 font = pygame.font.SysFont(None, 36)
 font2 = pygame.font.SysFont(None, 50)
 assets = Path(__file__).parent / "images"
+keys = pygame.key.get_pressed()
 images_dir = Path(__file__).parent / "images" if (Path(__file__).parent / "images").exists() else Path(__file__).parent / "assets"
 class Settings:
     """Class to store game configuration."""
     Game_over=False
-    cheating= False
     width = 600
     height = 600
     fps = 60
@@ -133,11 +133,10 @@ class AlienSpaceship(Spaceship):
             Settings.shoot_delay = 250
             self.fire_projectile()
 
-        if keys[pygame.K_TAB]:
-            Settings.cheating= True
+        
 
-        if keys[pygame.K_TAB]:
-            Settings.cheating= True
+        
+        
         
 
        
@@ -363,7 +362,7 @@ class Game:
        
         
         while self.running:
-            if not Settings.Game_over and not Settings.cheating:
+            if not Settings.Game_over:  
                 self.update()
                 self.add_obstacle()
             self.handle_events()

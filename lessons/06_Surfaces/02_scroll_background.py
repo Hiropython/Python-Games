@@ -8,7 +8,7 @@ be smoothly scrolled and updated from the Sprite groups.
 import pygame
 import random
 from pathlib import Path
-
+import math
 d = Path(__file__).parent # The directory that holds the script
 
 # Initialize Pygame
@@ -18,7 +18,7 @@ class Settings:
     """A class to store all settings for the game."""
     SCREEN_WIDTH = 800
     SCREEN_HEIGHT = 600
-    BACKGROUND_SCROLL_SPEED = 2
+    BACKGROUND_SCROLL_SPEED = 10
     FPS = 30
 
 # Initialize screen
@@ -38,7 +38,10 @@ class Background(pygame.sprite.Sprite):
         # This converts the form of the image to be more efficient. 
         orig_image= pygame.image.load(d/'images/background_scroll.png').convert()
         orig_image = pygame.transform.scale(orig_image, (Settings.SCREEN_WIDTH, Settings.SCREEN_HEIGHT))
-        
+        stripes=256
+        stripe_width = orig_image.get_width()/stripes
+        for i in range (stripes):
+            orig_image.fill((0, i*255/stripes, 18),(math.ceil(i*stripe_width),0,math.ceil(stripe_width),(orig_image.get_height())))
         # Then, copy it into the self.image surface twice
         self.image.blit(orig_image, (0, 0))
         self.image.blit(orig_image, (Settings.SCREEN_WIDTH, 0))
@@ -46,7 +49,7 @@ class Background(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 0
         self.rect.y = 0
-
+       
     def update(self):
         """Update the position of the background."""
         

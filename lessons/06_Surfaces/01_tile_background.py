@@ -4,6 +4,8 @@ tiling it to fill the screen.
 
 """
 import pygame
+import math
+import time
 
 # Initialize Pygame
 pygame.init()
@@ -17,11 +19,15 @@ screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Tiled Background')
 
-def make_tiled_bg(screen, bg_file):
+def make_tiled_bg(screen, bg_file,stripes=2):
     # Scale background to match the screen height
     
     bg_tile = pygame.image.load(bg_file).convert()
+    stripe_width = bg_tile.get_width()/stripes
+    for i in range (stripes):
+        bg_tile.fill((0, i*255/stripes, 18),(math.ceil(i*stripe_width),0,math.ceil(stripe_width),(bg_tile.get_height())))
     
+
     background_height = screen.get_height()
     bg_tile = pygame.transform.scale(bg_tile, (bg_tile.get_width(), screen.get_height()))
 
@@ -37,11 +43,16 @@ def make_tiled_bg(screen, bg_file):
         
     return image
 
-background = make_tiled_bg(screen, assets/'background_tile.gif')
 
+stripes=2
 # Main loop
 running = True
 while running:
+    background = make_tiled_bg(screen, assets/'background_tile.gif',stripes)
+    
+    stripes=stripes*2
+    if stripes>255:
+        stripes=2
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -50,6 +61,7 @@ while running:
 
     # Update the display
     pygame.display.flip()
+    time.sleep(3)
 
 # Quit Pygame
 pygame.quit()
