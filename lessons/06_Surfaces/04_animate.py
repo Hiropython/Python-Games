@@ -1,7 +1,9 @@
 import pygame
 from jtlgames.spritesheet import SpriteSheet
 from pathlib import Path
-
+pygame.init()
+font = pygame.font.SysFont(None, 36)
+font2 = pygame.font.SysFont(None, 50)
 images = Path(__file__).parent / 'images'
 class Settings:
     """A class to store all settings for the game."""
@@ -17,6 +19,7 @@ class Settings:
     LENGTH_CHANGE = 5
     INITIAL_LENGTH = 100
     FONT_SIZE = 24
+    game_over= False
     
 clock = pygame.time.Clock()
 def scale_sprites(sprites, scale):
@@ -39,6 +42,7 @@ class Alligator:
         self.position = pygame.math.Vector2(x, y)
         self.direction_vector = pygame.math.Vector2(Settings.INITIAL_LENGTH, 0)  # Initial direction vector
     def move(self,frog):
+        self.rect.topleft=self.position
 
         
         
@@ -52,7 +56,7 @@ class Alligator:
         self.N = int(length // 3)
         self.step = (final_position - self.position) / self.N
         frog_direction=frog.position-self.position
-        self.position+=frog_direction/50
+        self.position+=frog_direction.normalize()
 
         
     
@@ -72,6 +76,7 @@ class Player:
 
     def draw(self, screen,show_line=True):
         """Draws the player and the direction vector on the screen."""
+        pygame.draw.rect(screen, Settings.PLAYER_COLOR, self.rect)
         #pygame.draw.rect(screen, Settings.PLAYER_COLOR, (self.position.x - Settings.PLAYER_SIZE // 2, self.position.y - Settings.PLAYER_SIZE // 2, Settings.PLAYER_SIZE, Settings.PLAYER_SIZE))
         
         # The end position of the direction vector is the player's position plus the direction vector
@@ -98,10 +103,19 @@ class Player:
         if self.N>0:
             self.N-=1
             self.position += self.step
+            #print(self.position)
+        self.rect.topleft=self.position
         #self.draw(screen, show_line=False)
         #pygame.draw.line(screen, Settings.LINE_COLOR, init_position, final_position, 2)
         #pygame.display.flip()
-        clock.tick(Settings.FPS)
+        #clock.tick(Settings.FPS)
+        if self.rect.top < 0:
+            self.rect.top = 0
+        
+        #if self.rect.bottom>Settings.SCREEN_HEIGHT:
+            #self.rect.bottom= Settings.SCREEN_HEIGHT
+        
+        
 
 def draw_vector_info(player,screen):
     """Draws the vector information at the bottom of the screen."""
@@ -125,12 +139,13 @@ def draw_vector_info(player,screen):
     screen.blit(angle_surface, (10, Settings.SCREEN_HEIGHT - 20))
 
 def main():
-    player = Player(Settings.SCREEN_WIDTH // 2, Settings.SCREEN_HEIGHT // 2)
-    alligator = Alligator(Settings.SCREEN_WIDTH // 2, Settings.SCREEN_HEIGHT // 2)
+    player = Player(Settings.SCREEN_WIDTH // 4, Settings.SCREEN_HEIGHT // 4)
+    alligator = Alligator(Settings.SCREEN_WIDTH /4*3, Settings.SCREEN_HEIGHT /4*3)
+
     # Initialize Pygame
     pygame.init()
     key_limit=0
-
+ 
 
     # Set up the display
     screen = pygame.display.set_mode((640, 480))
@@ -159,8 +174,8 @@ def main():
     # Main game loop
     running = True
     
-    player.rect = frog_sprites[0].get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
-    alligator.rect=allig_sprites[0].get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+    player.rect = frog_sprites[0].get_rect(center=player.position)
+    alligator.rect=allig_sprites[0].get_rect(center=alligator.position)
     pygame.math.Vector2(1, 0)
     def draw_alligator(alligator, index):
         """Creates a composed image of the alligator sprites.
@@ -179,22 +194,22 @@ def main():
         height = alligator[0].get_height()
         composed_image = pygame.Surface((width * 3, height), pygame.SRCALPHA)
 
+
         composed_image.blit(alligator[0], (0, 0))
         composed_image.blit(alligator[1], (width, 0))
         composed_image.blit(alligator[(index + 2) % len(alligator)], (width * 2, 0))
 
         return composed_image
-    if Settings.Game_over:
-            screen.fill(settings.colors["black"])
-           # obstacle_text = font.render(f"Score: {obstacle_count}", True, (255, 255, 255))
-            #screen.blit(obstacle_text, (10, 10))
-            obstacle_text = font2.render("Game over", True, (255, 255, 255))
-            screen.blit(obstacle_text, (200, 200))
+    
     while running:
         collider = pygame.sprite.spritecollide(player, [alligator], dokill=False)
+        if collider:
+            Settings.game_over=True
+            print(Settings.game_over)  
         player.player_update()
         alligator.move(player)
-        screen.fill((0, 0, 139))  # Clear screen with deep blue
+        screen.fill((0, 0, 139))  
+        # Clear screen with deep blue
 
         # Update animation every few frames
         frame_count += 1
@@ -221,11 +236,20 @@ def main():
             player.move(screen)
         player.draw(screen)
         screen.blit(frog_sprites[frog_index], player.position)
-
+        pygame.draw.rect(screen, Settings.PLAYER_COLOR, alligator.rect)
         composed_alligator = draw_alligator(allig_sprites, allig_index)
         screen.blit(composed_alligator,(alligator.position))
+        alligator.rect.width=composed_alligator.get_width()
+        alligator.rect.height= composed_alligator.get_height()
+        #print(alligator.rect)
 
         screen.blit(log,(100,100))
+        if Settings.game_over:
+            screen.fill((0,0,0))
+           # obstacle_text = font.render(f"Score: {obstacle_count}", True, (255, 255, 255))
+            #screen.blit(obstacle_text, (10, 10))
+            obstacle_text = font2.render("Game over", True, (255, 255, 255))
+            screen.blit(obstacle_text, (200, 200))
 
 
         # Update the display
@@ -237,7 +261,8 @@ def main():
                 running = False
 
         # Cap the frame rate
-        pygame.time.Clock().tick(60)
+        #pygame.time.Clock().tick(60)
+        clock.tick(60)
 
     # Quit Pygame
     pygame.quit()
