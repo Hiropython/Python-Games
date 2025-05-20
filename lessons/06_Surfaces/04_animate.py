@@ -82,7 +82,7 @@ class Player:
         # The end position of the direction vector is the player's position plus the direction vector
         end_position = self.position + self.direction_vector
         
-        if show_line:
+        if show_line: 
             pygame.draw.line(screen, Settings.LINE_COLOR, self.position, end_position, 2)
 
     def move(self,screen):
@@ -109,16 +109,24 @@ class Player:
         #pygame.draw.line(screen, Settings.LINE_COLOR, init_position, final_position, 2)
         #pygame.display.flip()
         #clock.tick(Settings.FPS)
-        if self.rect.top < 0:
-            self.rect.top = 0
+        if self.position.y < 0:
+            self.position.y = 0
         
-        #if self.rect.bottom>Settings.SCREEN_HEIGHT:
-            #self.rect.bottom= Settings.SCREEN_HEIGHT
+        if self.position.y>Settings.SCREEN_HEIGHT-180:
+            self.position.y=Settings.SCREEN_HEIGHT-180
+
+        if self.position.x < 0:
+            self.position.x = 0
+
+        if self.position.x>Settings.SCREEN_WIDTH-260:
+            self.position.x=Settings.SCREEN_WIDTH-260
+
+            #print (self.position.y, Settings.SCREEN_HEIGHT)
         
         
 
 def draw_vector_info(player,screen):
-    """Draws the vector information at the bottom of the screen."""
+    """Draws the vector information at the bottom of t he screen."""
     direction_x, direction_y = player.direction_vector.x, player.direction_vector.y
     magnitude = player.direction_vector.length()
     angle = player.direction_vector.angle_to(pygame.math.Vector2(1, 0))  # Angle with respect to the x-axis
@@ -205,7 +213,7 @@ def main():
         collider = pygame.sprite.spritecollide(player, [alligator], dokill=False)
         if collider:
             Settings.game_over=True
-            print(Settings.game_over)  
+            #print(Settings.game_over)  
         player.player_update()
         alligator.move(player)
         screen.fill((0, 0, 139))  
@@ -233,7 +241,8 @@ def main():
             if Settings.LENGTH_CHANGE<player.direction_vector.length():
                 player.direction_vector.scale_to_length(player.direction_vector.length() - Settings.LENGTH_CHANGE)
         elif keys[pygame.K_SPACE]:
-            player.move(screen)
+            #frog_sprites[frog_index].move_to_front()
+            screen.blit(frog_sprites[frog_index], player.position+player.direction_vector)    #player.move(screen)
         player.draw(screen)
         screen.blit(frog_sprites[frog_index], player.position)
         pygame.draw.rect(screen, Settings.PLAYER_COLOR, alligator.rect)
