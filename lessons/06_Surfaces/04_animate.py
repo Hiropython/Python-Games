@@ -76,7 +76,7 @@ class Player:
 
     def draw(self, screen,show_line=True):
         """Draws the player and the direction vector on the screen."""
-        pygame.draw.rect(screen, Settings.PLAYER_COLOR, self.rect)
+        #pygame.draw.rect(screen, Settings.PLAYER_COLOR, self.rect)
         #pygame.draw.rect(screen, Settings.PLAYER_COLOR, (self.position.x - Settings.PLAYER_SIZE // 2, self.position.y - Settings.PLAYER_SIZE // 2, Settings.PLAYER_SIZE, Settings.PLAYER_SIZE))
         
         # The end position of the direction vector is the player's position plus the direction vector
@@ -219,7 +219,7 @@ def main():
         screen.fill((0, 0, 139))  
         # Clear screen with deep blue
 
-        # Update animation every few frames
+        # Update animation every few frames 
         frame_count += 1
         
         if frame_count % frames_per_image == 0: 
@@ -242,7 +242,8 @@ def main():
                 player.direction_vector.scale_to_length(player.direction_vector.length() - Settings.LENGTH_CHANGE)
         elif keys[pygame.K_SPACE]:
             #frog_sprites[frog_index].move_to_front()
-            screen.blit(frog_sprites[frog_index], player.position+player.direction_vector)    #player.move(screen)
+            player.move(screen)
+            #screen.blit(frog_sprites[frog_index], player.position+player.direction_vector)    #player.move(screen)
         player.draw(screen)
         screen.blit(frog_sprites[frog_index], player.position)
         pygame.draw.rect(screen, Settings.PLAYER_COLOR, alligator.rect)
