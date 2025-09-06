@@ -13,7 +13,7 @@ class Settings:
     LINE_COLOR = (0, 255, 0)
     PLAYER_COLOR = (0, 0, 255)
     BACKGROUND_COLOR = (255, 255, 255)
-    TEXT_COLOR = (0, 0, 0)
+    TEXT_COLOR = (0, 0, 0) 
     FPS = 30  
     ANGLE_CHANGE = 3
     LENGTH_CHANGE = 5
@@ -73,7 +73,7 @@ class Player:
         """
         self.position = pygame.math.Vector2(x, y)
         self.direction_vector = pygame.math.Vector2(Settings.INITIAL_LENGTH, 0)  # Initial direction vector
-
+        self.isJumping = False
     def draw(self, screen,show_line=True):
         """Draws the player and the direction vector on the screen."""
         #pygame.draw.rect(screen, Settings.PLAYER_COLOR, self.rect)
@@ -87,7 +87,7 @@ class Player:
 
     def move(self,screen):
         """Moves the player in the direction of the current angle."""
-        
+        self.isJumping = True
         
         init_position = self.position # Save the initial position for the animation
         
@@ -97,7 +97,12 @@ class Player:
         # The rest is just for animation
         length = self.direction_vector.length()
         self.N = int(length // 3)
-        self.step = (final_position - self.position) / self.N   
+        self.step = (final_position - self.position) / self.N
+        if self.N>0:
+            if self.position==final_position:
+                self.isJumping = False
+    
+        
        
     def player_update(self):
         if self.N>0:
@@ -243,9 +248,18 @@ def main():
         elif keys[pygame.K_SPACE]:
             #frog_sprites[frog_index].move_to_front()
             player.move(screen)
+                
+            
+        
+            
             #screen.blit(frog_sprites[frog_index], player.position+player.direction_vector)    #player.move(screen)
+        
+        if player.isJumping == True:
+            screen.blit(frog_sprites[2], player.position)
+        else:    
+            player.isJumping = False
+            screen.blit(frog_sprites[frog_index], player.position)
         player.draw(screen)
-        screen.blit(frog_sprites[frog_index], player.position)
         pygame.draw.rect(screen, Settings.PLAYER_COLOR, alligator.rect)
         composed_alligator = draw_alligator(allig_sprites, allig_index)
         screen.blit(composed_alligator,(alligator.position))
