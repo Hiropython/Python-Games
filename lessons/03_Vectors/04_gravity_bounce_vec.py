@@ -9,7 +9,11 @@ understandable, and makes it easier to add more complex features to the game.
 """
 import pygame
 from dataclasses import dataclass
+from jtlgames.spritesheet import SpriteSheet
+from pathlib import Path
 
+
+images = Path(__file__).parent / 'images'
 
 
 class Colors:
@@ -44,6 +48,12 @@ class Game:
     
     def __init__(self, settings: GameSettings):
         pygame.init()
+        # Load the sprite sheet
+        screen = pygame.display.set_mode((640, 480))
+
+        
+        #cellsize = (16, 16)  # Replace with the size of your sprites
+
 
         self.settings = settings
         self.running = True
@@ -57,7 +67,7 @@ class Game:
         
     def game_draw(self):
         pygame.draw.circle(self.screen,(235, 52, 52),self.center,50)
-
+        
         
         # Turn Gravity into a vector
         self.gravity = pygame.Vector2(0, self.settings.gravity)
@@ -88,6 +98,15 @@ class Player:
     """Player class, just a bouncing rectangle"""
     
     def __init__(self, game: Game):
+        filename = images / 'spritesheet.png'  # Replace with your actual file path
+        ss = pygame.image.load(filename)
+        # Get a bunch of images from the sprite sheet    
+         
+        
+        #frog_g = ss.image_at(4)
+        self.frog_p = ss.subsurface(pygame.Rect(64,0,16,16))
+        self.frog_p = pygame.transformation.scale(self.frog_p,(GameSettings.height,GameSettings.width))
+        
         self.game = game
         self.settings = self.game.settings
 
@@ -221,7 +240,8 @@ class Player:
     def draw(self, screen):
         #Game.game_draw("")
         end_position = self.pos + self.direction_vector
-        pygame.draw.rect(screen, Colors.PLAYER_COLOR, (self.pos.x, self.pos.y, self.width, self.height))
+        #pygame.draw.rect(screen, Colors.PLAYER_COLOR, (self.pos.x, self.pos.y, self.width, self.height))
+        screen.blit(self.frog_p,(self.pos.x,self.pos.y))
         pygame.draw.line(screen,(0,0,0), self.pos, end_position, 2)
         pygame.draw.line(screen,(0,0,0), self.pos,game.center)
         game.vec_to_center(self.pos)

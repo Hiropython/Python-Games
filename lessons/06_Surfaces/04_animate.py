@@ -98,16 +98,19 @@ class Player:
         length = self.direction_vector.length()
         self.N = int(length // 3)
         self.step = (final_position - self.position) / self.N
-        if self.N>0:
-            if self.position==final_position:
-                self.isJumping = False
+        #if self.N>0:
+            
     
         
        
     def player_update(self):
+        
         if self.N>0:
             self.N-=1
             self.position += self.step
+            
+        else:
+            self.isJumping = False
             #print(self.position)
         self.rect.topleft=self.position
         #self.draw(screen, show_line=False)
@@ -183,6 +186,8 @@ def main():
     allig_index = 0
     frames_per_image = 6
     frame_count = 0
+    space_pressed=False
+    
 
     # Main game loop
     running = True
@@ -245,9 +250,14 @@ def main():
         elif keys[pygame.K_DOWN]:
             if Settings.LENGTH_CHANGE<player.direction_vector.length():
                 player.direction_vector.scale_to_length(player.direction_vector.length() - Settings.LENGTH_CHANGE)
-        elif keys[pygame.K_SPACE]:
+    
+        if keys[pygame.K_SPACE]:
+            if player.isJumping==False:
+                
+            
             #frog_sprites[frog_index].move_to_front()
-            player.move(screen)
+                player.move(screen)
+                
                 
             
         
