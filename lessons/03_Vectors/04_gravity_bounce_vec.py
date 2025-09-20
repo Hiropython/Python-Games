@@ -28,6 +28,8 @@ class Colors:
 @dataclass
 class GameSettings:
     """Settings for the game"""
+    frog_width:int = 50
+    frog_height:int = 50
     width: int = 500
     height: int = 500
     gravity: float = 1 
@@ -35,8 +37,8 @@ class GameSettings:
     player_start_y: int = None
     player_v_y: float = 0  # Initial y velocity
     player_v_x: float = 4  # Initial x velocity
-    player_width: int = 20
-    player_height: int = 20
+    player_width: int = frog_width
+    player_height: int = frog_height
     player_jump_velocity: float = 10 
     frame_rate: int = 50
     
@@ -105,7 +107,7 @@ class Player:
         
         #frog_g = ss.image_at(4)
         self.frog_p = ss.subsurface(pygame.Rect(64,0,16,16))
-        self.frog_p = pygame.transformation.scale(self.frog_p,(GameSettings.height,GameSettings.width))
+        self.frog_p = pygame.transform.scale(self.frog_p,(GameSettings.frog_height,GameSettings.frog_width))
         
         self.game = game
         self.settings = self.game.settings
@@ -172,11 +174,13 @@ class Player:
     # Updates
     
     def update(self):
-        on_ground=self.pos.y==480
+        
+        on_ground= self.pos.y==500-self.height
         keys=pygame.key.get_pressed()
         """Update player position, continuously jumping"""
         if on_ground:
             if keys[pygame.K_SPACE]:
+    
                 self.vel=self.direction_vector*0.2
                 
             
