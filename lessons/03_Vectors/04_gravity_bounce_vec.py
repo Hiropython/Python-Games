@@ -19,7 +19,7 @@ images = Path(__file__).parent / 'images'
 class Colors:
     """Constants for Colors"""
     WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
+    BLACK = (0, 0, 0) 
     RED = (255, 0, 0)
     PLAYER_COLOR = (255, 0, 30)
     BACKGROUND_COLOR = (255, 255, 255)
@@ -107,7 +107,7 @@ class Player:
         
         #frog_g = ss.image_at(4)
         self.frog_p = ss.subsurface(pygame.Rect(64,0,16,16))
-        self.frog_p = pygame.transform.scale(self.frog_p,(GameSettings.frog_height,GameSettings.frog_width))
+        self.frog_p = pygame.transform.scale(self.frog_p,(GameSettings.frog_width,GameSettings.frog_height))
         
         self.game = game
         self.settings = self.game.settings
@@ -239,6 +239,10 @@ class Player:
         # check if the player is at the bottom. 
         if self.at_bottom():
             self.vel += self.v_jump
+            print("squish")
+            self.frog_p = pygame.transform.scale(self.frog_p,(self.frog_width,self.frog_height-100))
+    
+           
          
 
     def draw(self, screen):
